@@ -8,10 +8,31 @@ var GAP = 10;
 var LINE_HEIGHT = 20;
 var BAR_WIDTH = 40;
 var BAR_INTERVAL = 50;
-var barY = CLOUD_Y + GAP * 9;
-var BAR_HEIGHT = 150;
+var BAR_HEIGHT_MAX = 150;
+var COLOR_BLACK = 'rgba(0, 0, 0, 1)';
+var COLOR_RED = 'rgba(255, 0, 0, 1)';
 
+var getRandomValue = function(min, max, step) {
+  var res = (Math.floor(Math.random() * (max - min + step) / step)) * step + min;
 
+  return Number(res.toFixed(10));
+}
+
+var getRandomSaturationHSL = function(hue, lightness) {
+  return 'hsl(' + hue + ',' + getRandomValue(0, 100, 1) + '%,' + lightness  + '%)';
+};
+
+var getBarX = function(iteration) {
+  return CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * iteration;
+};
+
+var getBarHeight = function(arr, maxTime, iteration) {
+  return Math.round((arr[iteration] / maxTime * BAR_HEIGHT_MAX));
+};
+
+var getBarY = function(arr, maxTime, iteration) {
+  return CLOUD_Y + GAP * 9 + BAR_HEIGHT_MAX - getBarHeight(arr, maxTime, iteration);
+};
 
 var renderCloud = function(ctx, x, y, color) {
   ctx.fillStyle = color;
@@ -28,20 +49,13 @@ var getMaxElement = function(arr) {
   return maxElement;
 };
 
-var getRandomValue = function(min, max, step) {
-  var res = (Math.floor(Math.random() * (max - min + step) / step)) * step + min;
-
-  return Number(res.toFixed(10));
-}
-
-
 
 window.renderStatistics = function(ctx, names, times) {
 
   renderCloud(ctx, CLOUD_X + GAP, CLOUD_Y + GAP, 'rgba(0, 0, 0, 0.7)');
   renderCloud(ctx, CLOUD_X, CLOUD_Y, 'rgba(255, 255, 255, 1)');
 
-  ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+  ctx.fillStyle = COLOR_BLACK;
 
   ctx.font = '16px PT Mono';
   ctx.fillText('Ура вы победили!', CLOUD_X + GAP * 2, CLOUD_Y + GAP * 3);
@@ -52,18 +66,17 @@ window.renderStatistics = function(ctx, names, times) {
 
   for (var i = 0; i < names.length; i++) {
     if (names[i] === 'Вы') {
-      ctx.fillText(Math.round(times[i]), CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * i, barY + (BAR_HEIGHT - (times[i] / maxTime * BAR_HEIGHT)) - GAP);
-      ctx.fillStyle = 'rgba(255, 0, 0, 1)';
-      ctx.fillRect(CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * i, barY + (BAR_HEIGHT - (times[i] / maxTime * BAR_HEIGHT)), BAR_WIDTH, times[i] / maxTime * BAR_HEIGHT);
-      ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-      ctx.fillText(names[i], CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * i, barY + (BAR_HEIGHT - (times[i] / maxTime * BAR_HEIGHT)) + (BAR_WIDTH, times[i] / maxTime * BAR_HEIGHT) + LINE_HEIGHT);
+      ctx.fillText(Math.round(times[i]), getBarX(i), getBarY(times, maxTime, i) - GAP);
+      ctx.fillStyle = COLOR_RED;
+      ctx.fillRect(getBarX(i), getBarY(times, maxTime, i), BAR_WIDTH, getBarHeight(times, maxTime, i));
+      ctx.fillStyle = COLOR_BLACK;
+      ctx.fillText(names[i], getBarX(i), getBarY(times, maxTime, i) + getBarHeight(times, maxTime, i) + LINE_HEIGHT);
     } else {
-      ctx.fillText(Math.round(times[i]), CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * i, barY + (BAR_HEIGHT - (times[i] / maxTime * BAR_HEIGHT)) - GAP);
-      ctx.fillStyle = 'hsl(240,' + getRandomValue(0, 100, 1) + '%, 50%)';
-      ctx.fillRect(CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * i, barY + (BAR_HEIGHT - (times[i] / maxTime * BAR_HEIGHT)), BAR_WIDTH, times[i] / maxTime * BAR_HEIGHT);
-      ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-      ctx.fillText(names[i], CLOUD_X + BAR_INTERVAL + (BAR_INTERVAL + BAR_WIDTH) * i, barY + (BAR_HEIGHT - (times[i] / maxTime * BAR_HEIGHT)) + (BAR_WIDTH, times[i] / maxTime * BAR_HEIGHT) + LINE_HEIGHT);
+      ctx.fillText(Math.round(times[i]), getBarX(i), getBarY(times, maxTime, i) - GAP);
+      ctx.fillStyle = getRandomSaturationHSL(240, 50);
+      ctx.fillRect(getBarX(i), getBarY(times, maxTime, i), BAR_WIDTH, getBarHeight(times, maxTime, i));
+      ctx.fillStyle = COLOR_BLACK;
+      ctx.fillText(names[i], getBarX(i), getBarY(times, maxTime, i) + getBarHeight(times, maxTime, i) + LINE_HEIGHT);
     }
-
   }
 };
