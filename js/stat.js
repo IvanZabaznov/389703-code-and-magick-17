@@ -49,6 +49,15 @@ var getMaxElement = function(arr) {
   return maxElement;
 };
 
+var getColor = function(arr, iteration) {
+  var color = getRandomSaturationHSL(240, 50);
+
+  if (arr[iteration] === 'Вы') {
+    color = COLOR_RED;
+  }
+
+  return color;
+};
 
 window.renderStatistics = function(ctx, names, times) {
 
@@ -65,18 +74,10 @@ window.renderStatistics = function(ctx, names, times) {
   var maxTime = getMaxElement(times);
 
   for (var i = 0; i < names.length; i++) {
-    if (names[i] === 'Вы') {
-      ctx.fillText(Math.round(times[i]), getBarX(i), getBarY(times, maxTime, i) - GAP);
-      ctx.fillStyle = COLOR_RED;
-      ctx.fillRect(getBarX(i), getBarY(times, maxTime, i), BAR_WIDTH, getBarHeight(times, maxTime, i));
-      ctx.fillStyle = COLOR_BLACK;
-      ctx.fillText(names[i], getBarX(i), getBarY(times, maxTime, i) + getBarHeight(times, maxTime, i) + LINE_HEIGHT);
-    } else {
-      ctx.fillText(Math.round(times[i]), getBarX(i), getBarY(times, maxTime, i) - GAP);
-      ctx.fillStyle = getRandomSaturationHSL(240, 50);
-      ctx.fillRect(getBarX(i), getBarY(times, maxTime, i), BAR_WIDTH, getBarHeight(times, maxTime, i));
-      ctx.fillStyle = COLOR_BLACK;
-      ctx.fillText(names[i], getBarX(i), getBarY(times, maxTime, i) + getBarHeight(times, maxTime, i) + LINE_HEIGHT);
-    }
+    ctx.fillText(Math.round(times[i]), getBarX(i), getBarY(times, maxTime, i) - GAP);
+    ctx.fillStyle = getColor(names, i);
+    ctx.fillRect(getBarX(i), getBarY(times, maxTime, i), BAR_WIDTH, getBarHeight(times, maxTime, i));
+    ctx.fillStyle = COLOR_BLACK;
+    ctx.fillText(names[i], getBarX(i), getBarY(times, maxTime, i) + getBarHeight(times, maxTime, i) + LINE_HEIGHT);
   }
 };
